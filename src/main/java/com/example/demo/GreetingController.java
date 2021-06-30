@@ -20,11 +20,14 @@ public class GreetingController {
     @Autowired
     private AsyncService service;
 
+    @Autowired
+    private int someNumber;
+
     @GetMapping("/greeting")
     public Person greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
         model.addAttribute("name", name);
 
-        Person p = new Person(name, 10);
+        Person p = new Person(name, someNumber);
         return p;
     }
 
@@ -32,7 +35,7 @@ public class GreetingController {
     public Employee test() throws InterruptedException, ExecutionException {
         log.info("testAsynch Start");
 
-        CompletableFuture<Employee> employeeName = service.getEmployeeName();
+        CompletableFuture<Employee> employeeName = service.getEmployeeName("test");
 
         // Wait until they are all done
         // We only have 1 async service, but there could be more. Similar to JS promise.join

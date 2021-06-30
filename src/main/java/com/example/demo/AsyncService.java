@@ -16,25 +16,17 @@ public class AsyncService {
 
     private static Logger log = LoggerFactory.getLogger(AsyncService.class);
 
-//    @Autowired
-//    private RestTemplate restTemplate;
-
-//    @Bean
-//    public RestTemplate restTemplate() {
-//        return new RestTemplate();
-//    }
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Async("asyncExecutor")
-    public CompletableFuture<Employee> getEmployeeName() throws InterruptedException
+    public CompletableFuture<Employee> getEmployeeName(String name) throws InterruptedException
     {
         log.info("getEmployeeName starts");
-        RestTemplate restTemplate = new RestTemplate();
-        Employee p = restTemplate.getForObject("http://localhost:8080/greeting?name=bob", Employee.class);
+        Employee p = restTemplate.getForObject("http://localhost:8080/greeting?name="+name, Employee.class);
 
-        // log.info("employeeNameData, {}", p);
-        Thread.sleep(1000L);    //Intentional delay
+        Thread.sleep(5000L);    //Intentional delay
         log.info("employeeNameData completed");
-        // Employee p = new Employee("test", 10);
         return CompletableFuture.completedFuture(p);
     }
 
