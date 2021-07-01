@@ -1,7 +1,7 @@
-package com.example.demo;
+package com.example.demo.controllers;
 
-import com.example.demo.model.Employee;
-import com.example.demo.model.Person;
+import com.example.demo.services.AsyncService;
+import com.example.demo.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,30 +20,22 @@ public class GreetingController {
     @Autowired
     private AsyncService service;
 
-    @Autowired
-    private int someNumber;
-
-    @GetMapping("/greeting")
-    public Person greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
-        model.addAttribute("name", name);
-
-        Person p = new Person(name, someNumber);
-        return p;
-    }
-
     @GetMapping("/testAsync")
-    public Employee test() throws InterruptedException, ExecutionException {
+    public User test() throws InterruptedException, ExecutionException {
         log.info("testAsynch Start");
 
-        CompletableFuture<Employee> employeeName = service.getEmployeeName("test");
+        CompletableFuture<User> userPromise = service.getUser();
+        CompletableFuture<Integer> agePromise = service.getUserAge();
 
         // Wait until they are all done
         // We only have 1 async service, but there could be more. Similar to JS promise.join
-        CompletableFuture.allOf(employeeName).join();
+        CompletableFuture.allOf(userPromise, agePromise).join();
 
-        log.info("EmployeeName--> " + employeeName.get());
+        User response = userPromise.get(); // retrieve from the user promise
+        response.setAge(agePromise.get());
 
-        return employeeName.get();
+        // sample response: {"name":"Janet","lastName":"Weaver","email":"janet.weaver@reqres.in","age":99}
+        return response;
     }
 
 }
